@@ -1,0 +1,76 @@
+{
+  "Customers": [
+    {
+      "FirstName": "Alice",
+      "LastName": "Smith",
+      "Email": "alice.smith@example.com",
+      "CustomerID": 1,
+      "SignupDate": "2025-06-02T13:27:43.234Z"
+    },
+    {
+      "FirstName": "Bob",
+      "LastName": "Johnson",
+      "Email": "bob.j@example.com",
+      "CustomerID": 2,
+      "SignupDate": "2025-06-02T13:27:43.234Z"
+    },
+    {
+      "FirstName": "Charlie",
+      "LastName": "Brown",
+      "Email": "charlie.b@example.com",
+      "CustomerID": 3,
+      "SignupDate": "2025-06-02T13:27:43.234Z"
+    },
+    {
+      "FirstName": "Diana",
+      "LastName": "Davis",
+      "Email": "diana.davis@sample.net",
+      "CustomerID": 4,
+      "SignupDate": "2025-06-02T13:27:43.234Z"
+    }
+  ],
+  "Transactions": [
+    {
+      "CustomerID": 1,
+      "Product": "Laptop",
+      "Amount": 1200.5,
+      "TransactionID": 1,
+      "TransactionDate": "2025-06-02T13:27:43.234Z"
+    },
+    {
+      "CustomerID": 2,
+      "Product": "Keyboard",
+      "Amount": 75,
+      "TransactionID": 2,
+      "TransactionDate": "2025-06-02T13:27:43.234Z"
+    },
+    {
+      "CustomerID": 1,
+      "Product": "Mouse",
+      "Amount": 25.99,
+      "TransactionID": 3,
+      "TransactionDate": "2025-06-02T13:27:43.234Z"
+    },
+    {
+      "CustomerID": 3,
+      "Product": "Monitor",
+      "Amount": 300,
+      "TransactionID": 4,
+      "TransactionDate": "2025-06-02T13:27:43.234Z"
+    },
+    {
+      "CustomerID": 4,
+      "Product": "Webcam",
+      "Amount": 55.5,
+      "TransactionID": 5,
+      "TransactionDate": "2025-06-02T13:27:43.234Z"
+    },
+    {
+      "CustomerID": 2,
+      "Product": "Docking Station",
+      "Amount": 150.75,
+      "TransactionID": 6,
+      "TransactionDate": "2025-06-02T13:27:43.234Z"
+    }
+  ]
+}
