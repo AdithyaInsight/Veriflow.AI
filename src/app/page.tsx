@@ -43,7 +43,7 @@ export default function Home() {
         </div>
 
         <div className="mt-12 text-center text-gray-500 text-sm">
-          <p>AI Hackathon Project - Agentic AI for Database Operations</p>
+          <p>Veriflow - Agentic AI for Database Operations</p>
         </div>
       </div>
     </main>

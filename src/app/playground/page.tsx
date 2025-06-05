@@ -173,7 +173,7 @@ export default function PlaygroundPage() {
 
   return (
     <div className="container mx-auto p-4 flex flex-col h-screen bg-gray-50">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">AI Database Agent Playground</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-800">Veriflow AI Playground</h1>
       
       {/* Mode Selector */}
       <div className="flex space-x-2 mb-4">
