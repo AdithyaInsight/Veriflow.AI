@@ -7,7 +7,9 @@ console.log('📍 Endpoint:', process.env.AZURE_OPENAI_ENDPOINT);
 console.log('📅 API Version:', process.env.AZURE_OPENAI_API_VERSION);
 console.log('🏷️ Model Name:', process.env.AZURE_OPENAI_MODEL_NAME);
 console.log('🚀 Deployment:', process.env.AZURE_OPENAI_DEPLOYMENT);
-console.log('🔑 API Key:', process.env.AZURE_OPENAI_API_KEY);
+console.log('🔑 API Key Present:', !!process.env.AZURE_OPENAI_API_KEY);
+console.log('🔑 API Key Length:', process.env.AZURE_OPENAI_API_KEY?.length || 0);
+console.log('🔑 API Key Preview:', process.env.AZURE_OPENAI_API_KEY?.substring(0, 8) + '...');
 
 const baseURL = `${process.env.AZURE_OPENAI_ENDPOINT}openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}`;
 console.log('🌐 Full Base URL:', baseURL);
