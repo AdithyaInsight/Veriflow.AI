@@ -179,12 +179,14 @@ ${relevantData ? `Relevant Data: ${JSON.stringify(relevantData, null, 2)}` : ''}
 
 Please analyze this data inconsistency issue and provide:
 1. A clear explanation of what might be causing the discrepancy
-2. A proposed SQL fix if applicable (or null if no fix is needed)
+2. A proposed SQL fix if applicable (should be ONLY the SQL DDL/DML statement, no explanatory text)
+
+IMPORTANT: If providing a SQL fix, include ONLY the executable SQL statement (like CREATE VIEW, ALTER VIEW, etc.) without any explanatory text before or after it.
 
 Format your response as JSON:
 {
   "explanation": "Your detailed explanation here",
-  "proposedFix": "SQL fix here or null"
+  "proposedFix": "ONLY the SQL statement here, or null if no fix needed"
 }`;
 
     console.log("🚀 Making debug API call to Azure OpenAI...");
@@ -210,10 +212,12 @@ Format your response as JSON:
    - Timing issues (data refresh, synchronization)
 
 3. Provide clear, actionable explanations
-4. Suggest SQL fixes when appropriate
+4. Suggest SQL fixes when appropriate - but ONLY provide the actual SQL statement, no explanatory text
 5. Always respond in valid JSON format
 
-Be thorough but concise in your analysis. Focus on the most likely causes based on the schema and problem description.`
+Be thorough but concise in your analysis. Focus on the most likely causes based on the schema and problem description.
+
+CRITICAL: For proposedFix, provide ONLY the SQL statement (e.g., "CREATE VIEW..." or "ALTER VIEW...") without any surrounding explanatory text.`
         },
         {
           role: 'user' as const,
@@ -234,11 +238,37 @@ Be thorough but concise in your analysis. Focus on the most likely causes based 
       const parsedResponse = JSON.parse(response);
       
       console.log("✅ Successfully parsed JSON response");
+      
+      // Extract clean SQL from proposedFix if it contains explanatory text
+      let cleanProposedFix = parsedResponse.proposedFix;
+      if (cleanProposedFix && typeof cleanProposedFix === 'string') {
+        // Look for SQL statements (CREATE, ALTER, etc.)
+        const sqlMatch = cleanProposedFix.match(/(CREATE\s+(?:OR\s+REPLACE\s+)?VIEW[\s\S]*?;)/i);
+        if (sqlMatch) {
+          cleanProposedFix = sqlMatch[1].trim();
+        }
+        // If no SQL pattern found but it's clearly SQL, keep as is
+        else if (cleanProposedFix.toLowerCase().includes('create') || 
+                 cleanProposedFix.toLowerCase().includes('alter') ||
+                 cleanProposedFix.toLowerCase().includes('select')) {
+          // Remove any explanatory text before the SQL
+          const lines = cleanProposedFix.split('\n');
+          const sqlStartIndex = lines.findIndex(line => 
+            line.toLowerCase().includes('create') || 
+            line.toLowerCase().includes('alter') ||
+            line.toLowerCase().includes('select')
+          );
+          if (sqlStartIndex > 0) {
+            cleanProposedFix = lines.slice(sqlStartIndex).join('\n').trim();
+          }
+        }
+      }
+      
       console.log("=== AZURE OPENAI DEBUGGER END ===");
       
       return {
         explanation: parsedResponse.explanation || "Unable to analyze the inconsistency.",
-        proposedFix: parsedResponse.proposedFix || null
+        proposedFix: cleanProposedFix || null
       };
       
     } catch (parseError) {

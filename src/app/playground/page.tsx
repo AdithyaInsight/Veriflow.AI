@@ -7,9 +7,78 @@ import React, { useState } from "react";
 interface DebugResult {
   explanation: string;
   proposedFix: string | null;
+  diffInfo?: {
+    viewName: string;
+    originalSQL: string;
+    proposedSQL: string;
+    hasChanges: boolean;
+  } | null;
 }
 
 type Mode = "generate" | "debug";
+
+// Diff component for showing SQL changes
+function SQLDiff({ diffInfo }: { diffInfo: DebugResult['diffInfo'] }) {
+  if (!diffInfo || !diffInfo.hasChanges) {
+    return null;
+  }
+
+  const formatSQL = (sql: string) => {
+    return sql
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+  };
+
+  const originalLines = formatSQL(diffInfo.originalSQL);
+  const proposedLines = formatSQL(diffInfo.proposedSQL);
+
+  return (
+    <div className="mt-3 border border-gray-300 rounded-md overflow-hidden">
+      <div className="bg-gray-50 px-3 py-2 border-b border-gray-300">
+        <h4 className="font-medium text-sm text-gray-700">
+          📊 Changes for View: <span className="font-mono">{diffInfo.viewName}</span>
+        </h4>
+      </div>
+      
+      <div className="grid grid-cols-2 text-sm">
+        {/* Original SQL */}
+        <div className="border-r border-gray-300">
+          <div className="bg-red-50 px-3 py-1 border-b border-gray-200 text-red-700 font-medium text-xs">
+            ❌ Current Definition
+          </div>
+          <div className="p-2 font-mono text-xs bg-red-25 overflow-x-auto max-h-48 overflow-y-auto">
+            {originalLines.map((line, index) => (
+              <div key={index} className="flex">
+                <span className="text-red-400 mr-2 select-none w-6 text-right text-xs">
+                  {index + 1}
+                </span>
+                <span className="bg-red-100 px-1 rounded flex-1 text-xs">{line}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Proposed SQL */}
+        <div>
+          <div className="bg-green-50 px-3 py-1 border-b border-gray-200 text-green-700 font-medium text-xs">
+            ✅ Proposed Fix
+          </div>
+          <div className="p-2 font-mono text-xs bg-green-25 overflow-x-auto max-h-48 overflow-y-auto">
+            {proposedLines.map((line, index) => (
+              <div key={index} className="flex">
+                <span className="text-green-400 mr-2 select-none w-6 text-right text-xs">
+                  {index + 1}
+                </span>
+                <span className="bg-green-100 px-1 rounded flex-1 text-xs">{line}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function PlaygroundPage() {
   // State for both workflows
@@ -103,16 +172,44 @@ export default function PlaygroundPage() {
   // Execute the query after confirmation if needed
   const executeQuery = async () => {
     setShowConfirmModal(false);
-    console.log("Running query (placeholder):", generatedSql);
+    console.log("Running query:", generatedSql);
     setIsQuerying(true);
     setQueryError(null);
     setQueryResult(null);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setQueryResult([{ message: "Query execution against lowdb needs a dedicated API endpoint and interpreter." }]);
-    setIsQuerying(false);
-    // TODO: Implement API call to /api/execute-query
+    try {
+      const response = await fetch("/api/execute-query", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ sql: generatedSql }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Query executed successfully:", data);
+      
+      // Handle different response formats
+      if (data.data && Array.isArray(data.data)) {
+        setQueryResult(data.data);
+      } else if (data.message) {
+        setQueryResult([{ message: data.message, status: "success" }]);
+      } else {
+        setQueryResult([{ message: "Query executed successfully", result: JSON.stringify(data) }]);
+      }
+      
+    } catch (err: any) {
+      console.error("Error executing query:", err);
+      setQueryError(`Failed to execute query: ${err.message}`);
+      setQueryResult([{ error: err.message }]);
+    } finally {
+      setIsQuerying(false);
+    }
   };
 
   // Workflow 2: Debug Inconsistency
@@ -163,12 +260,61 @@ export default function PlaygroundPage() {
   // Execute the fix after confirmation
   const executeFix = async () => {
     setShowFixConfirmModal(false);
-    console.log("Applying fix (placeholder):", debugResult?.proposedFix);
+    console.log("Applying fix:", debugResult?.proposedFix);
+    setIsQuerying(true);
+    setQueryError(null);
+    setQueryResult(null);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setQueryResult([{ message: "Fix applied successfully (placeholder)." }]);
-    // TODO: Implement API call to /api/execute-query with the fix SQL
+    try {
+      if (!debugResult?.proposedFix) {
+        throw new Error("No fix available to apply");
+      }
+
+      const response = await fetch("/api/execute-query", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ sql: debugResult.proposedFix }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Fix applied successfully:", data);
+      
+      // Handle different response formats for fix results
+      if (data.data && Array.isArray(data.data)) {
+        setQueryResult(data.data);
+      } else if (data.message) {
+        setQueryResult([{ 
+          message: data.message, 
+          status: "success",
+          fix_applied: true,
+          affected_object: debugResult.diffInfo?.viewName || "database object"
+        }]);
+      } else {
+        setQueryResult([{ 
+          message: "Fix applied successfully", 
+          result: JSON.stringify(data),
+          fix_applied: true 
+        }]);
+      }
+      
+    } catch (err: any) {
+      console.error("Error applying fix:", err);
+      setDebugError(`Failed to apply fix: ${err.message}`);
+      setQueryResult([{ 
+        error: err.message, 
+        fix_applied: false,
+        status: "failed" 
+      }]);
+    } finally {
+      setIsQuerying(false);
+    }
   };
 
   return (
@@ -313,20 +459,30 @@ export default function PlaygroundPage() {
               <div className="border border-gray-300 rounded-md p-4 bg-white">
                 {debugResult ? (
                   <>
-                    <h3 className="font-semibold text-lg mb-2">Explanation</h3>
+                    <h3 className="font-semibold text-lg mb-2">🔍 Explanation</h3>
                     <p className="mb-4 text-gray-700">{debugResult.explanation}</p>
                     
                     {debugResult.proposedFix && (
                       <>
-                        <h3 className="font-semibold text-lg mb-2">Proposed Fix</h3>
-                        <pre className="bg-gray-100 p-3 rounded-md overflow-x-auto text-sm font-mono mb-4">
-                          {debugResult.proposedFix}
-                        </pre>
+                        <h3 className="font-semibold text-lg mb-2 mt-4">🔧 Proposed Fix</h3>
+                        
+                        {/* Show diff if available, otherwise show regular proposed fix */}
+                        {debugResult.diffInfo && debugResult.diffInfo.hasChanges ? (
+                          <SQLDiff diffInfo={debugResult.diffInfo} />
+                        ) : (
+                          <pre className="bg-gray-100 p-3 rounded-md overflow-x-auto text-sm font-mono mb-4">
+                            {debugResult.proposedFix}
+                          </pre>
+                        )}
+                        
                         <button
                           onClick={handleApplyFix}
-                          className="px-4 py-2 bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          disabled={isQuerying}
+                          className={`mt-3 px-4 py-2 bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 ${
+                            isQuerying ? "cursor-not-allowed" : ""
+                          }`}
                         >
-                          Apply Fix
+                          {isQuerying ? "Applying Fix..." : "Apply Fix"}
                         </button>
                       </>
                     )}
