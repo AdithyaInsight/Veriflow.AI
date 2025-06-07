@@ -75,55 +75,43 @@
   ],
   "Views": {
     "ActiveCustomers": {
-      "definition": "CREATE OR REPLACE VIEW ActiveCustomers AS\nSELECT\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate\nFROM\n    Customers c\nWHERE\n    EXISTS (\n        SELECT 1\n        FROM Transactions t\n        WHERE t.CustomerID = c.CustomerID\n          AND t.Amount > 0\n    )",
+      "definition": "CREATE OR REPLACE VIEW ActiveCustomers AS\nSELECT\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate\nFROM\n    Customers c",
       "data": [
         {
-          "CustomerID": 1,
           "FirstName": "Alice",
           "LastName": "Smith",
           "Email": "alice.smith@example.com",
-          "SignupDate": "2025-06-02T13:27:43.234Z",
-          "TotalAmount": 1226.49,
-          "TransactionCount": 2,
-          "IsActive": true
+          "CustomerID": 1,
+          "SignupDate": "2025-06-02T13:27:43.234Z"
         },
         {
-          "CustomerID": 2,
           "FirstName": "Bob",
           "LastName": "Johnson",
           "Email": "bob.j@example.com",
-          "SignupDate": "2025-06-02T13:27:43.234Z",
-          "TotalAmount": 225.75,
-          "TransactionCount": 2,
-          "IsActive": true
+          "CustomerID": 2,
+          "SignupDate": "2025-06-02T13:27:43.234Z"
         },
         {
-          "CustomerID": 3,
           "FirstName": "Charlie",
           "LastName": "Brown",
           "Email": "charlie.b@example.com",
-          "SignupDate": "2025-06-02T13:27:43.234Z",
-          "TotalAmount": 300,
-          "TransactionCount": 1,
-          "IsActive": true
+          "CustomerID": 3,
+          "SignupDate": "2025-06-02T13:27:43.234Z"
         },
         {
-          "CustomerID": 4,
           "FirstName": "Diana",
           "LastName": "Davis",
           "Email": "diana.davis@sample.net",
-          "SignupDate": "2025-06-02T13:27:43.234Z",
-          "TotalAmount": 55.5,
-          "TransactionCount": 1,
-          "IsActive": true
+          "CustomerID": 4,
+          "SignupDate": "2025-06-02T13:27:43.234Z"
         }
       ],
-      "created_at": "2025-06-06T09:49:55.872Z",
-      "updated_at": "2025-06-06T09:49:55.872Z",
-      "previous_definition": "CREATE OR REPLACE VIEW ActiveCustomers AS\nSELECT\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate\nFROM\n    Customers c\nWHERE\n    EXISTS (\n        SELECT 1\n        FROM Transactions t\n        WHERE t.CustomerID = c.CustomerID\n          AND t.Amount > 0\n          AND t.TransactionDate <= DATE('now')\n    )"
+      "created_at": "2025-06-07T15:33:44.423Z",
+      "updated_at": "2025-06-07T15:33:44.423Z",
+      "previous_definition": "CREATE OR REPLACE VIEW ActiveCustomers AS\nSELECT\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate\nFROM\n    Customers c\nWHERE\n    EXISTS (\n        SELECT 1\n        FROM Transactions t\n        WHERE t.CustomerID = c.CustomerID\n          AND t.Amount > 0\n    )"
     },
     "CustomerInsights": {
-      "definition": "CREATE VIEW CustomerInsights AS\nSELECT\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate,\n    -- Aggregate transaction metrics\n    COUNT(t.TransactionID) AS TransactionCount,\n    SUM(t.Amount) AS TotalSpending,\n    AVG(t.Amount) AS AverageTransactionAmount,\n    MAX(t.TransactionDate) AS MostRecentPurchaseDate\nFROM\n    Customers c\n    INNER JOIN Transactions t ON c.CustomerID = t.CustomerID\nGROUP BY\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate;",
+      "definition": "CREATE VIEW CustomerInsights AS\nSELECT\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate,\n    -- Aggregate transaction metrics\n    COUNT(t.TransactionID) AS TransactionCount,\n    SUM(t.Amount) AS TotalSpending,\n    AVG(t.Amount) AS AverageTransactionAmount,\n    MAX(t.TransactionDate) AS MostRecentPurchaseDate\nFROM\n    Customers c\n    INNER JOIN Transactions t ON c.CustomerID = t.CustomerID\nGROUP BY\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate\n-- Only customers with at least one transaction are included due to INNER JOIN\n;",
       "data": [
         {
           "FirstName": "Alice",
@@ -154,7 +142,8 @@
           "SignupDate": "2025-06-02T13:27:43.234Z"
         }
       ],
-      "created_at": "2025-06-06T10:23:37.273Z",
+      "created_at": "2025-06-07T15:15:36.496Z",
+      "updated_at": "2025-06-07T15:09:20.760Z",
       "previous_definition": null
     },
     "alice_transaction": {
