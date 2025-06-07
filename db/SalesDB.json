@@ -111,7 +111,7 @@
       "previous_definition": "CREATE OR REPLACE VIEW ActiveCustomers AS\nSELECT\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate\nFROM\n    Customers c\nWHERE\n    EXISTS (\n        SELECT 1\n        FROM Transactions t\n        WHERE t.CustomerID = c.CustomerID\n          AND t.Amount > 0\n    )"
     },
     "CustomerInsights": {
-      "definition": "CREATE VIEW CustomerInsights AS\nSELECT\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate,\n    -- Aggregate transaction metrics\n    COUNT(t.TransactionID) AS TransactionCount,\n    SUM(t.Amount) AS TotalSpending,\n    AVG(t.Amount) AS AverageTransactionAmount,\n    MAX(t.TransactionDate) AS MostRecentPurchaseDate\nFROM\n    Customers c\n    INNER JOIN Transactions t ON c.CustomerID = t.CustomerID\nGROUP BY\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate\n-- Only customers with at least one transaction are included due to INNER JOIN\n;",
+      "definition": "CREATE VIEW CustomerInsights AS\nSELECT\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate,\n    -- Transaction summary metrics\n    COUNT(t.TransactionID) AS TransactionCount,\n    SUM(t.Amount) AS TotalSpending,\n    AVG(t.Amount) AS AverageTransactionAmount,\n    MAX(t.TransactionDate) AS MostRecentPurchaseDate\nFROM\n    Customers c\n    INNER JOIN Transactions t ON c.CustomerID = t.CustomerID\nGROUP BY\n    c.CustomerID,\n    c.FirstName,\n    c.LastName,\n    c.Email,\n    c.SignupDate\n-- Only customers with at least one transaction are included due to INNER JOIN\n;",
       "data": [
         {
           "FirstName": "Alice",
@@ -142,8 +142,8 @@
           "SignupDate": "2025-06-02T13:27:43.234Z"
         }
       ],
-      "created_at": "2025-06-07T15:15:36.496Z",
-      "updated_at": "2025-06-07T15:09:20.760Z",
+      "created_at": "2025-06-07T16:42:40.170Z",
+      "updated_at": "2025-06-07T15:15:36.496Z",
       "previous_definition": null
     },
     "alice_transaction": {

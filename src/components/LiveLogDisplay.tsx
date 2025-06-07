@@ -84,10 +84,10 @@ export default function LiveLogDisplay({ isActive, mode, onNewLog }: LiveLogDisp
 
   const getLevelIcon = (level: LogEntry['level']) => {
     switch (level) {
-      case 'success': return '✅';
-      case 'warning': return '⚠️';
-      case 'error': return '❌';
-      default: return 'ℹ️';
+      case 'success': return '✓';
+      case 'warning': return '!';
+      case 'error': return '✗';
+      default: return 'i';
     }
   };
 
@@ -122,7 +122,7 @@ export default function LiveLogDisplay({ isActive, mode, onNewLog }: LiveLogDisp
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <span className="text-green-500">●</span>
-          <h3 className="text-green-300 font-semibold">🔍 Live Agent Logs</h3>
+          <h3 className="text-green-300 font-semibold">Live Agent Logs</h3>
           <span className="text-green-600">({mode === 'generate' ? 'SQL Gen' : 'Debug'})</span>
         </div>
         
@@ -175,7 +175,7 @@ export default function LiveLogDisplay({ isActive, mode, onNewLog }: LiveLogDisp
       
       {logs.length === 0 && (
         <div className="text-center text-green-600 py-8">
-          <div className="text-2xl mb-2">🤖</div>
+          <div className="text-2xl mb-2 font-bold">AI</div>
           <div>Waiting for agent activity...</div>
         </div>
       )}

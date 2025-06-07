@@ -26,78 +26,78 @@ export default function AgenticFlow({ isActive, mode, onStepComplete, showDetail
   // Define step templates for different workflows
   const generateSteps: Omit<AgentStep, 'id' | 'timestamp' | 'status'>[] = [
     {
-      title: "📝 Processing User Request",
+      title: "Processing User Request",
       description: "Analyzing your natural language prompt for intent and requirements",
-      icon: "🔍",
+      icon: "PARSE",
       details: "Parsing prompt structure, identifying keywords, and determining SQL operation type"
     },
     {
-      title: "🗄️ Fetching Database Schema",
+      title: "Fetching Database Schema",
       description: "Retrieving table structures, columns, and relationships",
-      icon: "📊",
+      icon: "SCHEMA",
       details: "Querying INFORMATION_SCHEMA to understand available tables and data types"
     },
     {
-      title: "🧠 Building Context for AI",
+      title: "Building Context for AI",
       description: "Preparing comprehensive context with schema and business rules",
-      icon: "🔨",
+      icon: "CONTEXT",
       details: "Combining user request with database metadata for optimal SQL generation"
     },
     {
-      title: "🤖 Calling Azure OpenAI GPT-4.1",
+      title: "Calling Azure OpenAI GPT-4.1",
       description: "Generating SQL using advanced language model",
-      icon: "⚡",
+      icon: "AI",
       details: "Leveraging GPT-4.1 with specialized database prompts for accurate SQL creation"
     },
     {
-      title: "✅ SQL Generation Complete",
+      title: "SQL Generation Complete",
       description: "Generated syntactically correct and optimized SQL query",
-      icon: "🎯",
+      icon: "DONE",
       details: "Final validation and formatting of generated SQL statement"
     }
   ];
 
   const debugSteps: Omit<AgentStep, 'id' | 'timestamp' | 'status'>[] = [
     {
-      title: "🔍 Analyzing Problem Description",
+      title: "Analyzing Problem Description",
       description: "Understanding the data inconsistency issue",
-      icon: "🧐",
+      icon: "ANALYZE",
       details: "Extracting key entities, relationships, and potential problem areas"
     },
     {
-      title: "🏷️ Detecting Referenced Objects",
+      title: "Detecting Referenced Objects",
       description: "Identifying views, tables, and columns mentioned",
-      icon: "🎯",
+      icon: "DETECT",
       details: "Using pattern matching to find database objects in problem description"
     },
     {
-      title: "📊 Fetching Schema & View Definitions",
+      title: "Fetching Schema & View Definitions",
       description: "Retrieving current database structure and existing views",
-      icon: "🗂️",
+      icon: "FETCH",
       details: "Loading table schemas and view definitions for comparison analysis"
     },
     {
-      title: "🔗 Building Debug Context",
+      title: "Building Debug Context",
       description: "Assembling comprehensive analysis context",
-      icon: "🧩",
+      icon: "BUILD",
       details: "Combining problem description, schema, and existing view definitions"
     },
     {
-      title: "🤖 AI Inconsistency Analysis",
+      title: "AI Inconsistency Analysis",
       description: "Azure OpenAI analyzing potential root causes",
-      icon: "🔬",
+      icon: "PROCESS",
       details: "Deep analysis of joins, filters, aggregations, and data flow logic"
     },
     {
-      title: "⚖️ Generating Diff Comparison",
+      title: "Generating Diff Comparison",
       description: "Creating side-by-side comparison of current vs proposed solution",
-      icon: "📋",
+      icon: "DIFF",
       details: "GitHub-style diff generation showing exact changes needed"
     },
     {
-      title: "✅ Debug Analysis Complete",
+      title: "Debug Analysis Complete",
       description: "Comprehensive solution with explanation and proposed fix",
-      icon: "🎉",
+      icon: "COMPLETE",
       details: "Ready to apply fix or provide detailed explanation to user"
     }
   ];
@@ -153,10 +153,10 @@ export default function AgenticFlow({ isActive, mode, onStepComplete, showDetail
 
   const getStatusIcon = (status: AgentStep['status']) => {
     switch (status) {
-      case 'completed': return '✅';
-      case 'processing': return '⚡';
-      case 'error': return '❌';
-      default: return '⏳';
+      case 'completed': return '✓';
+      case 'processing': return '●';
+      case 'error': return '✗';
+      default: return '○';
     }
   };
 
@@ -177,7 +177,7 @@ export default function AgenticFlow({ isActive, mode, onStepComplete, showDetail
     <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 mb-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-          🤖 AI Agent Processing 
+          AI Agent Processing 
           <span className="ml-2 text-sm font-normal text-gray-600">
             ({mode === 'generate' ? 'SQL Generation' : 'Debug Analysis'})
           </span>
@@ -199,9 +199,11 @@ export default function AgenticFlow({ isActive, mode, onStepComplete, showDetail
                 : 'bg-white border-l-4 border-gray-200'
             }`}
           >
-            <div className="text-2xl">{step.icon}</div>
+            <div className="text-sm font-mono font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
+              {step.icon}
+            </div>
             
-            <div className="flex-1 min-w-0">
+            <div className="flex-1">
               <div className="flex items-center space-x-2">
                 <span className={`text-lg ${getStatusColor(step.status)}`}>
                   {getStatusIcon(step.status)}
@@ -220,7 +222,7 @@ export default function AgenticFlow({ isActive, mode, onStepComplete, showDetail
               
               {showDetails && step.details && (step.status === 'processing' || step.status === 'completed') && (
                 <div className="mt-2 p-2 bg-white rounded border text-xs text-gray-700 font-mono">
-                  💭 Internal: {step.details}
+                  Internal: {step.details}
                 </div>
               )}
             </div>
@@ -235,7 +237,7 @@ export default function AgenticFlow({ isActive, mode, onStepComplete, showDetail
       {currentStepIndex >= steps.length - 1 && steps[steps.length - 1]?.status === 'completed' && (
         <div className="mt-4 p-3 bg-green-100 border border-green-300 rounded-lg">
           <div className="flex items-center space-x-2">
-            <span className="text-2xl">🎉</span>
+            <span className="text-2xl font-bold text-green-800">✓</span>
             <span className="font-medium text-green-800">
               AI Agent Processing Complete!
             </span>

@@ -3,6 +3,9 @@
 
 import React, { useState } from "react";
 import StepByStepModal from "@/components/StepByStepModal";
+import { HiCommandLine, HiMagnifyingGlass, HiBolt, HiBugAnt } from "react-icons/hi2";
+import { BiCodeAlt } from "react-icons/bi";
+import { BsRobot, BsClockHistory, BsGear } from "react-icons/bs";
 
 type Mode = "generate" | "debug";
 
@@ -48,7 +51,7 @@ export default function PlaygroundPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mb-4">
-            <span className="text-2xl">🤖</span>
+            <BsRobot className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Veriflow AI Agent
@@ -69,7 +72,7 @@ export default function PlaygroundPage() {
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
-              <span className="text-lg mr-2">⚡</span>
+              <HiCommandLine className="inline-block w-5 h-5 mr-2" />
               SQL Generation
             </button>
             <button
@@ -80,7 +83,7 @@ export default function PlaygroundPage() {
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
-              <span className="text-lg mr-2">🔍</span>
+              <HiBugAnt className="inline-block w-5 h-5 mr-2" />
               Debug Inconsistencies
             </button>
           </div>
@@ -94,12 +97,12 @@ export default function PlaygroundPage() {
               <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                 {mode === "generate" ? (
                   <>
-                    <span className="text-2xl mr-3">⚡</span>
+                    <span className="text-lg font-bold mr-3 bg-blue-100 text-blue-800 px-2 py-1 rounded">SQL</span>
                     Generate SQL from Natural Language
                   </>
                 ) : (
                   <>
-                    <span className="text-2xl mr-3">🔍</span>
+                    <span className="text-lg font-bold mr-3 bg-indigo-100 text-indigo-800 px-2 py-1 rounded">DBG</span>
                     Debug Data Inconsistencies
                   </>
                 )}
@@ -140,7 +143,7 @@ export default function PlaygroundPage() {
                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
                   }`}
                 >
-                  <span className="text-lg mr-2">🚀</span>
+                  <HiBolt className="inline-block w-5 h-5 mr-2" />
                   {mode === "generate" ? "Generate SQL" : "Analyze Issue"}
                 </button>
               </div>
@@ -150,7 +153,7 @@ export default function PlaygroundPage() {
           {/* Example Prompts */}
           <div className="mt-8">
             <h3 className="text-lg font-medium text-gray-700 mb-4 text-center">
-              💡 Try these examples:
+              Try these examples:
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {examplePrompts[mode].map((example, index) => (
@@ -170,7 +173,7 @@ export default function PlaygroundPage() {
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center p-6 bg-white rounded-xl shadow-sm border border-gray-100">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🧠</span>
+                <BsRobot className="w-6 h-6 text-blue-800" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">AI-Powered</h3>
               <p className="text-sm text-gray-600">
@@ -180,7 +183,7 @@ export default function PlaygroundPage() {
             
             <div className="text-center p-6 bg-white rounded-xl shadow-sm border border-gray-100">
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">⚡</span>
+                <BsClockHistory className="w-6 h-6 text-green-800" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Real-time Processing</h3>
               <p className="text-sm text-gray-600">
@@ -190,9 +193,12 @@ export default function PlaygroundPage() {
             
             <div className="text-center p-6 bg-white rounded-xl shadow-sm border border-gray-100">
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🔍</span>
+                <BsGear className="w-6 h-6 text-purple-800" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Smart Debugging</h3>
+              <p className="text-sm text-gray-600">
+                Advanced inconsistency detection and resolution with GitHub-style diff comparisons
+              </p>
             </div>
           </div>
         </div>

@@ -2,17 +2,17 @@
 import OpenAI from 'openai';
 
 // Initialize Azure OpenAI client with detailed logging
-console.log('🔧 Initializing Azure OpenAI client...');
-console.log('📍 Endpoint:', process.env.AZURE_OPENAI_ENDPOINT);
-console.log('📅 API Version:', process.env.AZURE_OPENAI_API_VERSION);
-console.log('🏷️ Model Name:', process.env.AZURE_OPENAI_MODEL_NAME);
-console.log('🚀 Deployment:', process.env.AZURE_OPENAI_DEPLOYMENT);
-console.log('🔑 API Key Present:', !!process.env.AZURE_OPENAI_API_KEY);
-console.log('🔑 API Key Length:', process.env.AZURE_OPENAI_API_KEY?.length || 0);
-console.log('🔑 API Key Preview:', process.env.AZURE_OPENAI_API_KEY?.substring(0, 8) + '...');
+console.log('[INIT] Initializing Azure OpenAI client...');
+console.log('[CONFIG] Endpoint:', process.env.AZURE_OPENAI_ENDPOINT);
+console.log('[CONFIG] API Version:', process.env.AZURE_OPENAI_API_VERSION);
+console.log('[CONFIG] Model Name:', process.env.AZURE_OPENAI_MODEL_NAME);
+console.log('[CONFIG] Deployment:', process.env.AZURE_OPENAI_DEPLOYMENT);
+console.log('[AUTH] API Key Present:', !!process.env.AZURE_OPENAI_API_KEY);
+console.log('[AUTH] API Key Length:', process.env.AZURE_OPENAI_API_KEY?.length || 0);
+console.log('[AUTH] API Key Preview:', process.env.AZURE_OPENAI_API_KEY?.substring(0, 8) + '...');
 
 const baseURL = `${process.env.AZURE_OPENAI_ENDPOINT}openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}`;
-console.log('🌐 Full Base URL:', baseURL);
+console.log('[URL] Full Base URL:', baseURL);
 
 const openai = new OpenAI({
   apiKey: process.env.AZURE_OPENAI_API_KEY,
@@ -32,8 +32,8 @@ const openai = new OpenAI({
  */
 export async function generateSQL(context: string): Promise<string> {
   console.log("=== AZURE OPENAI SQL GENERATION START ===");
-  console.log("📝 Context Length:", context.length);
-  console.log("📝 Context Preview:", context.substring(0, 200) + "...");
+  console.log("[INPUT] Context Length:", context.length);
+  console.log("[INPUT] Context Preview:", context.substring(0, 200) + "...");
   
   // Verify environment variables before making the call
   const requiredEnvVars = [
@@ -47,19 +47,19 @@ export async function generateSQL(context: string): Promise<string> {
   const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
   if (missingVars.length > 0) {
     const error = `Missing environment variables: ${missingVars.join(', ')}`;
-    console.error("❌ Environment Error:", error);
+    console.error("[ERROR] Environment Error:", error);
     return `-- Environment Configuration Error: ${error}
 -- Please check your .env.local file
 SELECT 'Environment configuration incomplete' AS error_message;`;
   }
 
   try {
-    console.log("🚀 Making API call to Azure OpenAI...");
-    console.log("🔗 Request URL:", `${baseURL}/chat/completions?api-version=${process.env.AZURE_OPENAI_API_VERSION}`);
+    console.log("[API] Making API call to Azure OpenAI...");
+    console.log("[REQUEST] Request URL:", `${baseURL}/chat/completions?api-version=${process.env.AZURE_OPENAI_API_VERSION}`);
     
     // Use the deployment name as the model (like in the working example)
     const modelName = process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1-test';
-    console.log("🤖 Using model name:", modelName);
+    console.log("[MODEL] Using model name:", modelName);
     
     const completion = await openai.chat.completions.create({
       model: modelName, // Use deployment name as model name
@@ -93,36 +93,36 @@ When the user asks for data queries, generate appropriate SELECT statements.`
 
     const generatedSql = completion.choices[0]?.message?.content || '';
     
-    console.log("✅ API call successful!");
-    console.log("📨 Response received, length:", generatedSql.length);
-    console.log("📝 Generated SQL Preview:", generatedSql.substring(0, 200) + "...");
+    console.log("[SUCCESS] API call successful!");
+    console.log("[RESPONSE] Response received, length:", generatedSql.length);
+    console.log("[OUTPUT] Generated SQL Preview:", generatedSql.substring(0, 200) + "...");
     console.log("=== AZURE OPENAI SQL GENERATION END ===");
 
     return generatedSql.trim();
 
   } catch (error: any) {
     console.error("=== AZURE OPENAI ERROR DETAILS ===");
-    console.error("❌ Error Type:", error.constructor.name);
-    console.error("❌ Error Message:", error.message);
-    console.error("❌ Error Code:", error.code);
-    console.error("❌ Error Status:", error.status);
+    console.error("[ERROR] Error Type:", error.constructor.name);
+    console.error("[ERROR] Error Message:", error.message);
+    console.error("[ERROR] Error Code:", error.code);
+    console.error("[ERROR] Error Status:", error.status);
     
     // Log more details if available
     if (error.response) {
-      console.error("📡 Response Status:", error.response.status);
-      console.error("📡 Response Headers:", error.response.headers);
-      console.error("📡 Response Data:", error.response.data);
+      console.error("[RESPONSE] Response Status:", error.response.status);
+      console.error("[RESPONSE] Response Headers:", error.response.headers);
+      console.error("[RESPONSE] Response Data:", error.response.data);
     }
     
     if (error.request) {
-      console.error("📤 Request Details:", {
+      console.error("[REQUEST] Request Details:", {
         url: error.request.url,
         method: error.request.method,
         headers: error.request.headers
       });
     }
     
-    console.error("🔍 Full Error Object:", error);
+    console.error("[DEBUG] Full Error Object:", error);
     console.error("=== AZURE OPENAI ERROR DETAILS END ===");
     
     // Provide specific error messages based on error type
@@ -164,10 +164,10 @@ export async function debugInconsistency(
   relevantData?: any
 ): Promise<{ explanation: string; proposedFix: string | null }> {
   console.log("=== AZURE OPENAI DEBUGGER START ===");
-  console.log("🐛 Problem Description:", problemDescription);
-  console.log("📋 Schema Length:", relevantSchema.length);
+  console.log("[DEBUG] Problem Description:", problemDescription);
+  console.log("[SCHEMA] Schema Length:", relevantSchema.length);
   if (relevantData) {
-    console.log("📊 Additional Data:", JSON.stringify(relevantData, null, 2));
+    console.log("[DATA] Additional Data:", JSON.stringify(relevantData, null, 2));
   }
 
   try {
@@ -189,7 +189,7 @@ Format your response as JSON:
   "proposedFix": "ONLY the SQL statement here, or null if no fix needed"
 }`;
 
-    console.log("🚀 Making debug API call to Azure OpenAI...");
+    console.log("[API] Making debug API call to Azure OpenAI...");
 
     // Use the deployment name as the model (like in the working example)
     const modelName = process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1-test';
@@ -286,12 +286,12 @@ CRITICAL: For proposedFix, provide ONLY the SQL statement (e.g., "CREATE VIEW...
     }
 
   } catch (error: any) {
-    console.error("=== AZURE OPENAI DEBUG ERROR ===");
-    console.error("❌ Debug Error:", error);
-    console.error("=== AZURE OPENAI DEBUG ERROR END ===");
+    console.error("=== AZURE OPENAI DEBUGGER ERROR ===");
+    console.error("[ERROR] Debug Error:", error.message);
+    console.error("=== AZURE OPENAI DEBUGGER ERROR END ===");
     
     return {
-      explanation: `Error analyzing inconsistency: ${error.message}. Please check your request and try again.`,
+      explanation: `Error during analysis: ${error.message}`,
       proposedFix: null
     };
   }
