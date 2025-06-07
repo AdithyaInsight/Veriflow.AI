@@ -79,37 +79,62 @@ export default function StepByStepModal({ isOpen, onClose, mode, prompt }: StepB
   };
 
   const processStep = async (stepNumber: number): Promise<any> => {
-    switch (stepNumber) {
-      case 1: // Fetch Database Schemas
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return await fetchDatabaseSchema();
-      
-      case 2: // Search for Views (Debug only) or Run LLM (Generate)
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        if (mode === 'debug') {
-          return await searchForViews();
-        } else {
-          return await runLLMGeneration();
-        }
-      
-      case 3: // Run LLM (Debug) or Execute Query (Generate)
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        if (mode === 'debug') {
-          return await runLLMDebug();
-        } else {
-          return null; // User interaction required
-        }
-      
-      case 4: // Analysis (Debug) or Results (Generate)
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        if (mode === 'debug') {
-          return await generateAnalysis();
-        } else {
-          return null; // Results shown after execution
-        }
-      
-      default:
-        return null;
+    try {
+      switch (stepNumber) {
+        case 1: // Fetch Database Schemas
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const schemaData = await fetchDatabaseSchema();
+          console.log('Schema data fetched:', schemaData);
+          return schemaData;
+        
+        case 2: // Search for Views (Debug only) or Run LLM (Generate)
+          await new Promise(resolve => setTimeout(resolve, 1200));
+          if (mode === 'debug') {
+            const viewData = await searchForViews();
+            console.log('View data fetched:', viewData);
+            return viewData;
+          } else {
+            const llmData = await runLLMGeneration();
+            console.log('LLM generation data:', llmData);
+            return llmData;
+          }
+        
+        case 3: // Run LLM (Debug) or Execute Query (Generate)
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          if (mode === 'debug') {
+            const debugData = await runLLMDebug();
+            console.log('LLM debug data:', debugData);
+            if (!debugData || !debugData.data) {
+              throw new Error('Failed to get valid debug data from LLM');
+            }
+            return debugData;
+          } else {
+            return null; // User interaction required
+          }
+        
+        case 4: // Analysis (Debug) or Results (Generate)
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          if (mode === 'debug') {
+            const analysisData = await generateAnalysis();
+            console.log('Analysis data generated:', analysisData);
+            return analysisData;
+          } else {
+            return null; // Results shown after execution
+          }
+        
+        default:
+          return null;
+      }
+    } catch (error: unknown) {
+      console.error(`Error processing step ${stepNumber}:`, error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      return {
+        type: 'error',
+        data: {
+          message: `Error during ${mode === 'debug' ? 'debugging' : 'generation'} process: ${errorMessage}`
+        },
+        summary: 'Process failed'
+      };
     }
   };
 
@@ -226,27 +251,31 @@ WHERE EXISTS (
   };
 
   const generateAnalysis = async () => {
+    // Get debug data from step 3 (LLM Debug step) instead of step 2
     const debugData = steps[2]?.output?.data;
-    console.log('Debug data from step 2:', debugData); // Add logging for debugging
+    console.log('Debug data from LLM step:', debugData); // Add logging for debugging
     
-    if (!debugData) {
+    if (!debugData || !debugData.explanation) {
+      console.warn('Missing or invalid debug data:', debugData);
       return {
         type: 'analysis',
         data: {
-          explanation: 'Analysis data not available',
+          explanation: 'Analysis data not available. Please try running the debug process again.',
           diffInfo: null,
           proposedFix: null
         },
-        summary: 'Analysis pending'
+        summary: 'Analysis incomplete'
       };
     }
     
     // Ensure we have the complete analysis data structure
     const analysisData = {
-      explanation: debugData.explanation || 'Analysis completed',
+      explanation: debugData.explanation,
       diffInfo: debugData.diffInfo || null,
       proposedFix: debugData.proposedFix || null
     };
+    
+    console.log('Processed analysis data:', analysisData);
     
     return {
       type: 'analysis',
